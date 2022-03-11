@@ -4,114 +4,155 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class bitmapLab {
 
-    private String inputFileName;
-    private String outputFileName;
-    private String transformationName;
+    private int heightImg;
+    private int widthImg;
+    private BufferedImage img;
 
-    public bitmapLab(String inputFileName, String outputFileName, String transformationName)
+    public void read(String pathImg)
     {
-        this.inputFileName = "C:/Users/ayoos/bitmap-transformer/app/src/main/resources/Hourglass.bmp";
-        this.outputFileName = "C:/Users/ayoos/bitmap-transformer/app/src/main/resources/AYA.bmp";
-
-        if (transformationName.equals("invertImage")){
-            invertImage();
-        }
-
-    }
-    BufferedImage image;
-//    graphic.frame = new JFrame();
-
-    public void invertImage() {
+        File fileImg = new File (pathImg);
 
         try {
-            File file = new File("C:/Users/ayoos/bitmap-transformer/app/src/main/resources/Hourglass.bmp");
-            BufferedImage image = ImageIO.read(file);
-            BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
-//
+            img = ImageIO.read(fileImg);
+            heightImg = img.getHeight();
+            widthImg = img.getWidth();
+            System.out.println(heightImg);
+            System.out.println(widthImg);
+        } catch (IOException e) {
+            e.printStackTrace();
 
-
-            for (int i = 0; i < image.getHeight(); i++) {
-                for (int j = 0; j < image.getWidth(); j++) {
-                    Pixel p = getPixel(j,i,image);
-                    int redValue = 255 - p.getRedValue();
-                    int blueValue = 255 - p.getBlueValue();
-                    int greenValue = 255 - p.getGreenValue();
-
-                    p.setRGB(redValue, blueValue, greenValue);
-
-                }
             }
-            
-            Graphics graphics = result.getGraphics();
-            graphics.drawImage(result, 0, 0, null);
-            graphics.dispose();
-            System.out.println(result);
-            
-            
-//            String newFile = "AYA";
-//            newFile = "C:/Users/ayoos/bitmap-transformer/app/src/main/resources/"+ newFile + ".bmp";;
-            File output = new File(outputFileName);
-            ImageIO.write(result, "bmp", output);
+    }
 
-            System.out.println(output);
 
-//            Graphics graphic = result.createGraphics();
-//            graphic.drawImage(image, 0, 0, null);
-////            graphic.dispose();
-//            System.out.println(result);
+
+    public void conversionImage() {
+        for (int i = 0; i < widthImg; i++) {
+            for (int j = 0; j < heightImg; j++) {
+                int p = img.getRGB(i, j);
+
+                int a = (p >> 20) & 0xff;
+                int r = (p >> 16) & 0xff;
+                int g = (p >> 8) & 0xff;
+                int b = p & 0xff;
+
+                r = 255 - r;
+                g = 255 - g;
+                b = 255 - b;
+
+                p = (a << 24) | (r << 16) | (g << 8) | b;
+                img.setRGB(i, j, p);
+            }
         }
-        catch (FileNotFoundException fileNotFoundException) {
-            System.err.println(fileNotFoundException.getMessage());
+//        return img;
+
+    }
+
+
+    public void brighterImage() {
+
+        for (int i = 0; i < widthImg; i++) {
+            for (int j = 0; j < heightImg; j++) {
+               Color colorImg = new Color (img.getRGB(i,j));
+               colorImg = colorImg.brighter();
+               img.setRGB(i,j,colorImg.getRGB());
+            }
+        }
+//        return img;
+    }
+
+
+    public void write(String pathImg){
+        try {
+            ImageIO.write(img , "bmp",new File(pathImg));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
-    private Pixel getPixel(int column, int row, BufferedImage image) {
-        Color currentPixelColor = new Color(image.getRGB(column, row));
-        int red = currentPixelColor.getRed();
-        int green = currentPixelColor.getGreen();
-        int blue = currentPixelColor.getBlue();
-        return new Pixel(red,green,blue,column,row);
-    }
 
-    class Pixel {
-
-        final private int red;
-        final private int green;
-        final private int blue;
-        final private int column;
-        final private int row;
-
-        Pixel(int r, int g, int b, int column, int row) {
-            red = r;
-            green = g;
-            blue = b;
-            this.column = column;
-            this.row = row;
-        }
-
-        public int getRedValue() {
-            return red;
-        }
-
-        public int getGreenValue() {
-            return green;
-        }
-
-        public int getBlueValue() {
-            return blue;
-        }
-
-        public void setRGB(int r, int g, int b)
-        {
-            Color c = new Color(r,g,b);
-            image.setRGB(column, row, c.getRGB());
-        }
-    }
 }
+
+
+
+
+
+
+//    public static void conversionImage() throws IOException {
+//
+//        File inputFileName = new File("C:/Users/ayoos/bitmap-transformer/app/src/main/resources/Hourglass.bmp");
+//        File outputFileName =new File("C:/Users/ayoos/bitmap-transformer/app/src/main/resources/AYA.bmp");
+//        String transformationName = "invertImage" ;
+//
+//
+//        BufferedImage image = ImageIO.read(inputFileName);
+//        int width = image.getWidth();
+//        int height = image.getHeight();
+//        BufferedImage result = new BufferedImage(width,height , BufferedImage.TYPE_BYTE_BINARY);
+//
+//
+//        for (int i = 0; i < width ; i++) {
+//            for (int j = 0; j < height; j++) {
+//                int p = image.getRGB(i,j);
+//
+//                int a = (p>>24)&0xff;
+//                int r = (p>>16)&0xff;
+//                int g = (p>>8)&0xff;
+//                int b = p&0xff;
+//
+//                r = 255-r;
+//                g = 255-g;
+//                b = 255-b;
+//
+//                p = (a<<24) | (r<<16) | (g<<8) |b;
+//                image.setRGB(i,j,p);
+//
+//            }
+//
+//        }
+//        ImageIO.write(image , "bmp", outputFileName);
+//        //        bitmapLab Hourglass = new bitmapLab(inputFileName , outputFileName, transformationName);
+//
+//    }
+//
+//
+//    public static void rotate90() throws IOException {
+//
+//        final int ROTATE_LEFT = 1;
+//        int direction = ROTATE_LEFT;
+//        final int ROTATE_RIGHT = -1;
+//       try {
+//           File inputFileName = new File("C:/Users/ayoos/bitmap-transformer/app/src/main/resources/Hourglass.bmp");
+//           File outputFileName =new File("C:/Users/ayoos/bitmap-transformer/app/src/main/resources/AYA.bmp");
+//           BufferedImage image = ImageIO.read(inputFileName);
+//           int width = image.getWidth();
+//           int height = image.getHeight();
+//           BufferedImage resultRotated = new BufferedImage(width, height, image.getType());
+//
+//           for (int i = 0; i < height; i++) {
+//               for (int j = 0; j < width; j++) {
+//                   switch(direction){
+//                       case ROTATE_LEFT:
+//                           resultRotated.setRGB(i,(width-1) - j , image.getRGB(j,i));
+//                           break;
+//                       case ROTATE_RIGHT:
+//                           resultRotated.setRGB((height-1) - i, j , image.getRGB(j,i));
+//                   }
+//
+//               }
+//           }
+//           ImageIO.write(image , "bmp", outputFileName);
+//
+//           }
+//       catch (IOException ex)
+//       {
+//           ex.printStackTrace();
+//       }
+//    }
+//
+//}
